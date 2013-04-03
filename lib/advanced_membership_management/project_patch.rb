@@ -26,13 +26,14 @@ module AdvancedMembershipManagement
     module InstanceMethods
       
       def set_parent_with_members_copied!(p)
-        if set_parent_without_members_copied!(p) && !p.nil?
-          memberships.destroy_all unless memberships.nil?
+        p_id_before = parent_id # Must be captured before setting parent because it doesn't save parent_id_was correctly
+        set_parent = set_parent_without_members_copied!(p)
+        if set_parent && p && p_id_before != parent_id
+          # Inherit only when there's a new parent (not nil)
+          self.memberships.destroy_all unless self.memberships.nil?
           copy_members(p)
-          true
-        else
-          false
         end
+        set_parent
       end
       
       def add_automatic_memberships

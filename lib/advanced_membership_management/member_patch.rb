@@ -34,7 +34,7 @@ module AdvancedMembershipManagement
         # los usuarios heredan esos roles
         roles_changes[:added] ||= member_roles.where(:role_id => role_ids, :inherited_from => nil).collect(&:role_id)  
         roles_changes[:removed] ||= []
-        
+        logger.debug "add_memberships_to_subprojects: Adding memberships #{roles_changes[:added].inspect} and removing #{roles_changes[:removed].inspect} to subprojects of #{project}"
         if roles_changes[:added].any? 
           # Si efectivamente hay roles agregados que no son por herencia
           # las duplico en los subprojectos
@@ -83,6 +83,8 @@ module AdvancedMembershipManagement
         roles_changes[:added] ||= roles_ids_not_inherited - roles_changes[:original]
         roles_changes[:removed] ||= roles_changes[:original] - roles_ids_not_inherited
         
+        logger.debug "update_roles_of_subprojects_memberships: Adding memberships #{roles_changes[:added].inspect} and removing #{roles_changes[:removed].inspect} to subprojects of #{project}"
+        
         subprojects = Project.where(:parent_id => self.project)
         
         subprojects.each do |subproject|
@@ -128,7 +130,7 @@ module AdvancedMembershipManagement
         # Si hay alguno heredado se eliminara cuando se elimine el miembro del que se heredaron
         self.roles_changes[:added] ||= []
         self.roles_changes[:removed] = self.roles_changes[:original]
-        
+        logger.debug "remove_roles_in_subprojects: Adding memberships #{roles_changes[:added].inspect} and removing #{roles_changes[:removed].inspect} to subprojects of #{project}"
         subprojects = Project.where(:parent_id => self.project)
         subprojects.each do |subproject|
           
